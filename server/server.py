@@ -1,12 +1,17 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from gamehandler import *
+
+game_state = GameState()
 
 # HTTPRequestHandler class
 class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
+        
     # GET
     def do_GET(self):
-        message="nej"
-        if self.path.endswith("/penis"):
-            message="hest"
+        a=handle_request(self.path[1:],game_state)
+        message=str(a)
+        #if self.path.endswith("/penis"):
+        message=self.path;
         # Send response status code
         self.send_response(200)
 
