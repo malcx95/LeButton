@@ -11,6 +11,8 @@ type Msg
     | UpdateReceived Bool
     | ScoreReceived Int
     | IdReceived String
+    | ButtonPressResultReceived Bool
+    | NetworkError Http.Error
 
 
 -- Model
@@ -40,7 +42,34 @@ update msg model =
             ({model | score = Just value}, Cmd.none)
         IdReceived id ->
             ({model | id = Just id}, Cmd.none)
+        ButtonPressResultReceived sucess ->
+            (model, Cmd.none)
+        NetworkError e ->
+            let
+                _ = Debug.log "Network error:" e
+            in
+                (model, Cmd.none)
 
+
+
+checkHttpAttempt : (a -> Msg) -> Result Http.Error a -> Msg
+checkHttpAttempt func res =
+    case res of
+        Ok val ->
+            func val
+        Err e ->
+            NetworkError e
+
+
+pressButton : Cmd Msg
+pressButton =
+    let
+        url =
+            "{\"action\":\"push\"}"
+    in
+        Http.send
+            (checkHttpAttempt ButtonPressResultReceived)
+            (Http.get url Json.Decode.bool)
 
 
 
@@ -48,7 +77,15 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div [] []
+    let
+        scoreText = case model.score of
+            Just score -> "Score: " ++ toString score
+            Nothing -> "Score not fetched"
+    in
+        div []
+            [ button [onClick ButtonPressed] [text "Press"]
+            , p [] [text <| "Score: " ++ scoreText]
+            ]
 
 
 
