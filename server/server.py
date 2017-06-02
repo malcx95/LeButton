@@ -7,11 +7,14 @@ game_state = GameState()
 class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
         
     # GET
-    def do_GET(self):
-        a=handle_request(self.path[1:],game_state)
-        message=str(a)
+    def do_POST(self):
+        
+        body=self.rfile.read(int(self.headers['Content-Length']))
+        body=body.decode("utf-8")
+        print(body)
+        message = handle_request(body,game_state)
+        print(message)
         #if self.path.endswith("/penis"):
-        message=self.path;
         # Send response status code
         self.send_response(200)
 

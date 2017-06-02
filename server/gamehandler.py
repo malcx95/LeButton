@@ -80,6 +80,6 @@ def _push(name, game_state):
 def _generate_name(players):
     result = ""
     for i in range(ID_LENGTH):
-        result += ALPHABET[random.randint(len(ALPHABET) - 1)]
+        result += ALPHABET[random.randint(0, len(ALPHABET) - 1)]
     return result
 
