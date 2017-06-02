@@ -1,10 +1,12 @@
+module Main exposing (..)
+
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode exposing (..)
 import Json.Encode
+import Time exposing (..)
 import Http
-import Dom
 
 type Msg
     = ButtonPressed
@@ -13,6 +15,7 @@ type Msg
     | IdReceived String
     | ButtonPressResultReceived Bool
     | NetworkError Http.Error
+    | Tick Time
 
 
 -- Model
@@ -31,11 +34,20 @@ init =
 
 -- Update
 
+requestWithId : Maybe String -> (String -> Cmd Msg) -> Cmd Msg
+requestWithId maybeId requestFun =
+    case maybeId of
+        Nothing ->
+            Cmd.none
+        Just id ->
+            requestFun id
+
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         ButtonPressed ->
-            (model, pressButton)
+            (model, requestWithId model.id pressButton)
         UpdateReceived buttonState ->
             ({model | buttonState = Just buttonState}, Cmd.none)
         ScoreReceived value ->
@@ -44,6 +56,8 @@ update msg model =
             ({model | id = Just id}, Cmd.none)
         ButtonPressResultReceived sucess ->
             (model, Cmd.none)
+        Tick time ->
+            (model, requestWithId model.id getState)
         NetworkError e ->
             let
                 _ = Debug.log "Network error:" e
@@ -54,7 +68,7 @@ update msg model =
 makeJson : List (String, String) -> String
 makeJson vars =
     let
-        varStrings = List.map 
+        varStrings = List.map
                 (\(name, value) -> "'" ++ name ++ "':'" ++ value ++ "'" )
                 vars
 
@@ -62,6 +76,7 @@ makeJson vars =
             List.intersperse "," varStrings
     in
         "{" ++ (String.concat allStrings) ++ "}"
+
 
 checkHttpAttempt : (a -> Msg) -> Result Http.Error a -> Msg
 checkHttpAttempt func res =
@@ -72,11 +87,11 @@ checkHttpAttempt func res =
             NetworkError e
 
 
-pressButton : Cmd Msg
-pressButton =
+pressButton : String -> Cmd Msg
+pressButton id =
     let
         url =
-            makeJson [("action", "push")]
+            makeJson [("action", "push"), ("id", id)]
     in
         Http.send
             (checkHttpAttempt ButtonPressResultReceived)
@@ -88,6 +103,13 @@ getId =
     Http.send
     (checkHttpAttempt IdReceived)
     (Http.get (makeJson [("action","new")]) Json.Decode.string)
+
+
+getState : String -> Cmd Msg
+getState id =
+    Http.send
+    (checkHttpAttempt UpdateReceived)
+    (Http.get (makeJson [("action", "get"), ("id", id)]) Json.Decode.bool)
 
 
 -- View
@@ -110,7 +132,7 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    every (100 * millisecond) Tick
 
 
 
