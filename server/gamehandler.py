@@ -7,8 +7,9 @@ ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 class Player:
 
-    def __init__(self):
+    def __init__(self, has_pressed=False):
         self.score = 0
+        self.has_pressed = has_pressed
 
 
 class GameState:
@@ -16,8 +17,25 @@ class GameState:
     def __init__(self):
         self.players = {}
 
-    def add_player(self, name):
-        pass
+    def add_player(self, has_pressed=False):
+        name = _generate_name(self.players)
+        self.players[name] = Player(has_pressed)
+        return name
+
+    def get_player_score(self, name):
+        return self.players[name].score
+
+    def get_player_state(self, name):
+        return self.players[name].has_pressed
+
+    def player_push(self, name):
+        if self.players[name].has_pressed:
+            # The player has already pressed
+            return False
+        for player in self.players:
+            self.players[player].has_pressed = False
+        self.players[name] = True
+        return True
 
 
 def handle_request(request, game_state):
@@ -39,19 +57,19 @@ def handle_request(request, game_state):
 
 
 def _new_player(game_state):
-    pass
+    return json.dumps({'id': game_state.add_player()})
 
 
 def _get_score(name, game_state):
-    pass
+    return json.dumps({'score': game_state.get_player_score(name)})
 
 
 def _get_state(name, game_state):
-    pass
+    return json.dumps({'state': game_state.get_player_state(name)})
 
 
-def _push(request, game_state):
-    pass
+def _push(name, game_state):
+    return json.dumps({'success': game_state.player_push(name)})
 
 
 def _generate_name(players):
@@ -59,3 +77,4 @@ def _generate_name(players):
     for i in range(ID_LENGTH):
         result += ALPHABET[random.randint(len(ALPHABET) - 1)]
     return result
+
