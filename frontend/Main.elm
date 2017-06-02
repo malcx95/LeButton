@@ -25,7 +25,7 @@ type alias Model =
 
 init : (Model, Cmd Msg)
 init =
-    (Model Nothing Nothing Nothing, Cmd.none)
+    (Model Nothing Nothing Nothing, getId)
 
 
 
@@ -75,8 +75,7 @@ checkHttpAttempt func res =
 pressButton : Cmd Msg
 pressButton =
     let
-        url =
-            makeJson [("action", "push")]
+        url = ""
     in
         Http.send
             (checkHttpAttempt ButtonPressResultReceived)
@@ -87,7 +86,7 @@ getId : Cmd Msg
 getId =
     Http.send
     (checkHttpAttempt IdReceived)
-    (Http.get (makeJson [("action","new")]) Json.Decode.string)
+    (Http.post "" (Http.stringBody "text/json" (makeJson [("action","new")])) Json.Decode.string)
 
 
 -- View
