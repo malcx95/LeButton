@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 import json
 
 ID_LENGTH = 5
@@ -10,6 +11,7 @@ class Player:
     def __init__(self, has_pressed=False):
         self.score = 0
         self.has_pressed = has_pressed
+        self.pressed_time = None if not has_pressed else datetime.now()
 
 
 class GameState:
@@ -17,9 +19,9 @@ class GameState:
     def __init__(self):
         self.players = {}
 
-    def add_player(self, has_pressed=False):
+    def add_player(self):
         name = _generate_name(self.players)
-        self.players[name] = Player(has_pressed)
+        self.players[name] = Player(bool(len(self.players)))
         return name
 
     def get_player_score(self, name):
@@ -33,6 +35,9 @@ class GameState:
             # The player has already pressed
             return False
         for player in self.players:
+#            if self.players[player].has_pressed and \
+#               self.players[player].pressed_time is not None:
+#
             self.players[player].has_pressed = False
         self.players[name] = True
         return True
@@ -41,17 +46,17 @@ class GameState:
 def handle_request(request, game_state):
     parsed = json.loads(request)
     try:
-        action = request['action']
+        action = parsed['action']
     except KeyError:
         raise TypeError('Invalid request! No action key!')
     if action == 'new':
         return _new_player(game_state)
     elif action == 'get':
-        return _get_state(request['id'], game_state)
+        return _get_state(parsed['id'], game_state)
     elif action == 'score':
-        return _get_state(request['id'], game_state)
+        return _get_state(parsed['id'], game_state)
     elif action == 'push':
-        return _push(request['id'], game_state)
+        return _push(parsed['id'], game_state)
     else:
         raise TypeError('Invalid action \'{}\''.format(action))
 
