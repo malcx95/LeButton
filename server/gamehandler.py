@@ -12,18 +12,18 @@ class GameState:
         self.players = []
 
 
-def new_player(request):
+def new_player(request, game_state):
     pass
 
 
-def get_score(request):
+def get_score(request, game_state):
     pass
 
 
-def get_state(request):
+def get_state(request, game_state):
     pass
 
 
-def push(request):
+def push(request, game_state):
     pass
 
