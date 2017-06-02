@@ -35,7 +35,7 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         ButtonPressed ->
-            (model, Cmd.none)
+            (model, pressButton)
         UpdateReceived buttonState ->
             ({model | buttonState = Just buttonState}, Cmd.none)
         ScoreReceived value ->
@@ -71,6 +71,10 @@ pressButton =
             (checkHttpAttempt ButtonPressResultReceived)
             (Http.get url Json.Decode.bool)
 
+
+requestScoreUpdate : Cmd Msg
+requestScoreUpdate =
+    Cmd.none
 
 
 -- View
