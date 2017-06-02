@@ -7,17 +7,23 @@ import Http
 import Dom
 
 type Msg
-    = Nothing
+    = ButtonPressed
+    | UpdateReceived Bool
+    | ScoreReceived Int
+    | IdReceived String
 
 
 -- Model
 
 type alias Model =
-    {}
+    { buttonState: Maybe Bool
+    , score: Maybe Int
+    , id: Maybe String
+    }
 
 init : (Model, Cmd Msg)
 init =
-    ({}, Cmd.none)
+    (Model Nothing Nothing Nothing, Cmd.none)
 
 
 
@@ -26,8 +32,14 @@ init =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
-        Nothing ->
+        ButtonPressed ->
             (model, Cmd.none)
+        UpdateReceived buttonState ->
+            ({model | buttonState = Just buttonState}, Cmd.none)
+        ScoreReceived value ->
+            ({model | score = Just value}, Cmd.none)
+        IdReceived id ->
+            ({model | id = Just id}, Cmd.none)
 
 
 
