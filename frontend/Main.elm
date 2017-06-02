@@ -51,6 +51,17 @@ update msg model =
                 (model, Cmd.none)
 
 
+makeJson : List (String, String) -> String
+makeJson vars =
+    let
+        varStrings = List.map 
+                (\(name, value) -> "'" ++ name ++ "':'" ++ value ++ "'" )
+                vars
+
+        allStrings =
+            List.intersperse "," varStrings
+    in
+        "{" ++ (String.concat allStrings) ++ "}"
 
 checkHttpAttempt : (a -> Msg) -> Result Http.Error a -> Msg
 checkHttpAttempt func res =
@@ -65,16 +76,18 @@ pressButton : Cmd Msg
 pressButton =
     let
         url =
-            "{\"action\":\"push\"}"
+            makeJson [("action", "push")]
     in
         Http.send
             (checkHttpAttempt ButtonPressResultReceived)
             (Http.get url Json.Decode.bool)
 
 
-requestScoreUpdate : Cmd Msg
-requestScoreUpdate =
-    Cmd.none
+getId : Cmd Msg
+getId =
+    Http.send
+    (checkHttpAttempt IdReceived)
+    (Http.get (makeJson [("action","new")]) Json.Decode.string)
 
 
 -- View
