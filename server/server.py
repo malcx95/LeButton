@@ -11,10 +11,25 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
 
         self.send_response(200)
 
-        self.send_header('content-type', 'text/html')
+        if self.path == "/":
+            self.path = "/index.html"
+        path = "../frontend/output" + self.path
+
+        file_extension = path.split(".")[-1]
+
+        if file_extension == "html":
+            self.send_header('content-type', 'text/html')
+        elif file_extension == "css":
+            self.send_header('content-type', 'text/css')
+        elif file_extension == "js":
+            self.send_header('content-type', 'text/javascript')
+        else:
+            self.send_header('content-type', 'text/text')
         self.end_headers()
 
-        with open("../frontend/index.html") as page:
+
+        print(path)
+        with open(path) as page:
             self.wfile.write(bytes(page.read(), 'utf8'))
 
         return

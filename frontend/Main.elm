@@ -7,6 +7,7 @@ import Json.Decode exposing (..)
 import Json.Encode
 import Time exposing (..)
 import Http
+import Style
 
 type Msg
     = ButtonPressed
@@ -131,7 +132,7 @@ getScore id =
 view : Model -> Html Msg
 view model =
     div []
-        [ button [onClick ButtonPressed] [text "Press"]
+        [ button [onClick ButtonPressed, Style.class [Style.Button]] [text "Press"]
         , p [] [text <| "Button state: " ++ (toString <| Maybe.withDefault False model.buttonState)]
         , p [] [text <| "Score: " ++ (toString <| Maybe.withDefault 0 model.score)]
         , p [] [text <| "Your id: " ++ (Maybe.withDefault "-" model.id)]
@@ -144,7 +145,7 @@ view model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ every (500 * millisecond) Tick
+        [ every (100 * millisecond) Tick
         , every (1000 * millisecond) SlowTick
         ]
 

@@ -103,4 +103,7 @@ ENV/
 
 ## Elm stuff
 elm-stuff
-index.html
+# index.html
+compiled.js
+GlobalStyle.css
+
