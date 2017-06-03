@@ -16,6 +16,7 @@ type Msg
     | ButtonPressResultReceived Bool
     | NetworkError Http.Error
     | Tick Time
+    | SlowTick Time
 
 
 -- Model
@@ -58,6 +59,8 @@ update msg model =
             (model, Cmd.none)
         Tick time ->
             (model, requestWithId model.id getState)
+        SlowTick time ->
+            (model, requestWithId model.id getScore)
         NetworkError e ->
             let
                 _ = Debug.log "Network error:" e
@@ -69,7 +72,7 @@ makeJson : List (String, String) -> String
 makeJson vars =
     let
         varStrings = List.map
-                (\(name, value) -> "'" ++ name ++ "':'" ++ value ++ "'" )
+                (\(name, value) -> "\"" ++ name ++ "\":\"" ++ value ++ "\"" )
                 vars
 
         allStrings =
@@ -89,42 +92,50 @@ checkHttpAttempt func res =
 
 pressButton : String -> Cmd Msg
 pressButton id =
-    let
-        url =
-            makeJson [("action", "push"), ("id", id)]
-    in
-        Http.send
-            (checkHttpAttempt ButtonPressResultReceived)
-            (Http.get url Json.Decode.bool)
+    Http.send
+    (checkHttpAttempt ButtonPressResultReceived)
+    <| Http.post ""
+           (Http.stringBody "text/json" (makeJson [("action", "push"), ("id", id)]))
+           (Json.Decode.field "success" Json.Decode.bool)
 
 
 getId : Cmd Msg
 getId =
     Http.send
     (checkHttpAttempt IdReceived)
-    (Http.post "" (Http.stringBody "text/json" (makeJson [("action","new")])) Json.Decode.string)
+    <| Http.post ""
+               (Http.stringBody "text/json" (makeJson [("action","new")]))
+               (Json.Decode.field "id" Json.Decode.string)
 
 
 getState : String -> Cmd Msg
 getState id =
     Http.send
     (checkHttpAttempt UpdateReceived)
-    (Http.get (makeJson [("action", "get"), ("id", id)]) Json.Decode.bool)
+    <| Http.post ""
+               (Http.stringBody "text/json" (makeJson [("action","get"), ("id", id)]))
+               (Json.Decode.field "state" Json.Decode.bool)
+
+
+getScore : String -> Cmd Msg
+getScore id =
+    Http.send
+    (checkHttpAttempt ScoreReceived)
+    <| Http.post ""
+               (Http.stringBody "text/json" (makeJson [("action","score"), ("id", id)]))
+               (Json.Decode.field "score" Json.Decode.int)
 
 
 -- View
 
 view : Model -> Html Msg
 view model =
-    let
-        scoreText = case model.score of
-            Just score -> "Score: " ++ toString score
-            Nothing -> "Score not fetched"
-    in
-        div []
-            [ button [onClick ButtonPressed] [text "Press"]
-            , p [] [text <| "Score: " ++ scoreText]
-            ]
+    div []
+        [ button [onClick ButtonPressed] [text "Press"]
+        , p [] [text <| "Button state: " ++ (toString <| Maybe.withDefault False model.buttonState)]
+        , p [] [text <| "Score: " ++ (toString <| Maybe.withDefault 0 model.score)]
+        , p [] [text <| "Your id: " ++ (Maybe.withDefault "-" model.id)]
+        ]
 
 
 
@@ -132,7 +143,10 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    every (100 * millisecond) Tick
+    Sub.batch
+        [ every (500 * millisecond) Tick
+        , every (1000 * millisecond) SlowTick
+        ]
 
 
 

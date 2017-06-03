@@ -5,8 +5,21 @@ game_state = GameState()
 
 # HTTPRequestHandler class
 class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
-        
-    # GET
+    # For now, all GET requests return the index page
+    def do_GET(self):
+        print("Got GET request for: ", self.path)
+
+        self.send_response(200)
+
+        self.send_header('content-type', 'text/html')
+        self.end_headers()
+
+        with open("../frontend/index.html") as page:
+            self.wfile.write(bytes(page.read(), 'utf8'))
+
+        return
+    
+    # POST requests, used for actual data
     def do_POST(self):
         
         body=self.rfile.read(int(self.headers['Content-Length']))

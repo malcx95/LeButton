@@ -8,38 +8,49 @@ ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 class Player:
 
-    def __init__(self, has_pressed=False):
+    def __init__(self):
         self.score = 0
-        self.has_pressed = has_pressed
-        self.pressed_time = None if not has_pressed else datetime.now()
+        #self.pressed_time = None if not has_pressed else datetime.now()
+        self.pressed_time = None
 
 
 class GameState:
 
     def __init__(self):
         self.players = {}
+        self.presser = None
 
     def add_player(self):
         name = _generate_name(self.players)
-        self.players[name] = Player(bool(len(self.players)))
+        self.players[name] = Player()
         return name
 
     def get_player_score(self, name):
-        return self.players[name].score
+        if self.presser == name:
+            old_press_time = self.players[self.presser].pressed_time
+            added_score = datetime.now() - old_press_time
+
+            score = self.players[name].score + added_score.seconds
+        else:
+            score = self.players[name].score
+
+        return score
 
     def get_player_state(self, name):
-        return self.players[name].has_pressed
+        #return self.players[name].has_pressed
+        return self.presser == name
 
     def player_push(self, name):
-        if self.players[name].has_pressed:
-            # The player has already pressed
-            return False
-        for player in self.players:
-#            if self.players[player].has_pressed and \
-#               self.players[player].pressed_time is not None:
-#
-            self.players[player].has_pressed = False
-        self.players[name] = True
+        # Recalculate the score of the last presser
+        if self.presser != None:
+            old_press_time = self.players[self.presser].pressed_time
+            added_score = datetime.now() - old_press_time
+
+            self.players[self.presser].score += added_score.seconds
+
+
+        self.presser = name
+        self.players[name].pressed_time = datetime.now()
         return True
 
 
@@ -54,7 +65,7 @@ def handle_request(request, game_state):
     elif action == 'get':
         return _get_state(parsed['id'], game_state)
     elif action == 'score':
-        return _get_state(parsed['id'], game_state)
+        return _get_score(parsed['id'], game_state)
     elif action == 'push':
         return _push(parsed['id'], game_state)
     else:
