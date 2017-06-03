@@ -23,14 +23,16 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
             self.send_header('content-type', 'text/css')
         elif file_extension == "js":
             self.send_header('content-type', 'text/javascript')
+        elif file_extension == "mp3":
+            self.send_header('content-type', 'audio/mpeg')
         else:
             self.send_header('content-type', 'text/text')
         self.end_headers()
 
 
         print(path)
-        with open(path) as page:
-            self.wfile.write(bytes(page.read(), 'utf8'))
+        with open(path, 'rb') as page:
+            self.wfile.write(page.read())
 
         return
 

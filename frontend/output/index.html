@@ -17,6 +17,15 @@
     <script>
         var node = document.getElementById('main');
         var app = Elm.Main.embed(node);
+
+         var audioFiles = {
+             "knappon": new Audio("knappon.mp3"),
+             "knappoff": new Audio("knappoff.mp3")
+         };
+
+        app.ports.playFile.subscribe(function(file) {
+            audioFiles[file].play();
+        });
     </script>
 </body>
 </html>

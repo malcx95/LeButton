@@ -8,6 +8,7 @@ import Json.Encode
 import Time exposing (..)
 import Http
 import Style
+import Audio
 
 type Msg
     = ButtonPressed
@@ -45,13 +46,25 @@ requestWithId maybeId requestFun =
             requestFun id
 
 
+maybePlaySound : Maybe Bool -> Bool -> Cmd Msg
+maybePlaySound oldState newState =
+    case (oldState, newState) of
+        (Just False, True) ->
+            Audio.playFile "knappon"
+        (Just True, False) ->
+            Audio.playFile "knappoff"
+        _ ->
+            Cmd.none
+
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         ButtonPressed ->
             (model, requestWithId model.id pressButton)
         UpdateReceived buttonState ->
-            ({model | buttonState = Just buttonState}, Cmd.none)
+            ({model | buttonState = Just buttonState}
+            , maybePlaySound model.buttonState buttonState)
         ScoreReceived value ->
             ({model | score = Just value}, Cmd.none)
         IdReceived id ->
