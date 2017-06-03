@@ -131,12 +131,22 @@ getScore id =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ button [onClick ButtonPressed, Style.class [Style.Button]] [text "Press"]
-        , p [] [text <| "Button state: " ++ (toString <| Maybe.withDefault False model.buttonState)]
-        , p [] [text <| "Score: " ++ (toString <| Maybe.withDefault 0 model.score)]
-        , p [] [text <| "Your id: " ++ (Maybe.withDefault "-" model.id)]
-        ]
+    let
+        buttonStyle =
+            [ Style.Button
+            , case Maybe.withDefault False model.buttonState of
+                True ->
+                    Style.ButtonUp
+                False ->
+                    Style.ButtonDown
+            ]
+    in
+        div []
+            [ div [onClick ButtonPressed, Style.class buttonStyle] [text "Press"]
+            , p [] [text <| "Button state: " ++ (toString <| Maybe.withDefault False model.buttonState)]
+            , p [] [text <| "Score: " ++ (toString <| Maybe.withDefault 0 model.score)]
+            , p [] [text <| "Your id: " ++ (Maybe.withDefault "-" model.id)]
+            ]
 
 
 

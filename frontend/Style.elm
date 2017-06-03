@@ -23,12 +23,27 @@ toStyle =
 
 type CssClasses
     = Button
+    | ButtonDown
+    | ButtonUp
 
+
+buttonSize = 150
+
+
+buttonBorderColor =
+    hex "000000"
 
 globalStyle =
     [(stylesheet)
         [ Css.class Button
-            [backgroundColor <| hex "ff6666"]
+            [ width <| Css.px buttonSize
+            , height <| Css.px buttonSize
+            , borderRadius <| Css.px <| buttonSize / 2
+            , textAlign center
+            , verticalAlign center
+            , lineHeight <| Css.px buttonSize
+            , border3 (Css.px 5) solid buttonBorderColor
+            ]
         ]
     ]
 
