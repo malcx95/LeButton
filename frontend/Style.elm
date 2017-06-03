@@ -35,6 +35,8 @@ borderWidth = 5
 outerBorderWidth = 3
 outerSize = buttonSize + borderWidth * 2
 
+containerSize = 400
+
 buttonBorderColor =
     hex "000000"
 
@@ -53,6 +55,7 @@ globalStyle =
             [ height <| Css.px outerSize
             , width <| Css.px outerSize
             , borderRadius <| Css.px <| (outerSize / 2)
+            , margin2 (Css.px 0) auto
             ]
         , Css.class BorderUp
             [ border3 (Css.px outerBorderWidth) solid (hex "ff0000")
