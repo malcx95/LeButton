@@ -92,5 +92,10 @@ def _generate_name(players):
     result = ""
     for i in range(ID_LENGTH):
         result += ALPHABET[random.randint(0, len(ALPHABET) - 1)]
+
+    # if this name is not unique, try again
+    if result in players:
+        return _generate_name(players)
+
     return result
 
