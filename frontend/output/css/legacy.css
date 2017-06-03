@@ -1,4 +1,4 @@
-.ButtonDown
+.Button.ButtonDown
 {
 /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,c4c4c4+100 */
 background: #ffffff; /* Old browsers */
@@ -9,7 +9,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
 }
 
 
-.ButtonUp
+.Button.ButtonUp
 {
 
 /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#c4c4c4+0,ffffff+100 */

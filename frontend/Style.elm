@@ -25,10 +25,15 @@ type CssClasses
     = Button
     | ButtonDown
     | ButtonUp
+    | ButtonOuter
+    | BorderDown
+    | BorderUp
 
 
 buttonSize = 150
-
+borderWidth = 5
+outerBorderWidth = 3
+outerSize = buttonSize + borderWidth * 2
 
 buttonBorderColor =
     hex "000000"
@@ -42,7 +47,18 @@ globalStyle =
             , textAlign center
             , verticalAlign center
             , lineHeight <| Css.px buttonSize
-            , border3 (Css.px 5) solid buttonBorderColor
+            , border3 (Css.px borderWidth) solid buttonBorderColor
+            ]
+        , Css.class ButtonOuter
+            [ height <| Css.px outerSize
+            , width <| Css.px outerSize
+            , borderRadius <| Css.px <| (outerSize / 2)
+            ]
+        , Css.class BorderUp
+            [ border3 (Css.px outerBorderWidth) solid (hex "ff0000")
+            ]
+        , Css.class BorderDown
+            [ border3 (Css.px outerBorderWidth) solid (hex "00FF00")
             ]
         ]
     ]

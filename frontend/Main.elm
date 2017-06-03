@@ -140,9 +140,19 @@ view model =
                 False ->
                     Style.ButtonDown
             ]
+        buttonOuterStyle =
+            [ Style.ButtonOuter
+            , case Maybe.withDefault False model.buttonState of
+                True ->
+                    Style.BorderUp
+                False ->
+                    Style.BorderDown
+            ]
     in
         div []
-            [ div [onClick ButtonPressed, Style.class buttonStyle] [text "Press"]
+            [ div [Style.class buttonOuterStyle]
+                [ div [onClick ButtonPressed, Style.class buttonStyle] [text "Press"]
+                ]
             , p [] [text <| "Button state: " ++ (toString <| Maybe.withDefault False model.buttonState)]
             , p [] [text <| "Score: " ++ (toString <| Maybe.withDefault 0 model.score)]
             , p [] [text <| "Your id: " ++ (Maybe.withDefault "-" model.id)]
